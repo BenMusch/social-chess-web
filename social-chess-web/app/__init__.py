@@ -16,7 +16,6 @@ app.config.from_object("config")
 db = SQLA(app)
 appbuilder = AppBuilder(app, db.session, indexview=MyIndexView)
 
-
 """
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
