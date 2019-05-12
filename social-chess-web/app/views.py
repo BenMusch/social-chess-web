@@ -1,8 +1,8 @@
 from flask import render_template
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import ModelView, ModelRestApi
-
 from . import appbuilder, db
+from app.models import Player
 
 """
     Create your Model based REST API::
@@ -36,6 +36,10 @@ from . import appbuilder, db
     Application wide 404 error handler
 """
 
+class PlayerView(ModelView):
+    datamodel = SQLAInterface(Player)
+    list_columns = ['name', 'level']
+
 
 @appbuilder.app.errorhandler(404)
 def page_not_found(e):
@@ -48,3 +52,9 @@ def page_not_found(e):
 
 
 db.create_all()
+appbuilder.add_view(
+    PlayerView,
+    "List Players",
+    icon = "fa-folder-open-o",
+    category = "Players"
+)
