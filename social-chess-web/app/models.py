@@ -21,11 +21,13 @@ class Tournament(db.Model):
     A tournament is the top-level object
     """
     id = db.Column(db.Integer, primary_key=True)
-    schedule = relationship("Schedule", uselist=False, back_populates="tournament")
+    schedule_id = db.Column(db.Integer, db.ForeignKey('schedule.id'))
     playoff_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     winner_id = db.Column(db.Integer, db.ForeignKey('player.id'))
     title = db.Column(db.String(80), unique=True, nullable=False)
 
+    def __repr__(self):
+        return "<Tournament {}>".format(self.title)
 
 class Player(db.Model):
     """
@@ -68,11 +70,13 @@ class Schedule(db.Model):
     A schedule is just a collection of rounds
     who have games
     """
-    tournament = relationship("Tournament", uselist=False, back_populates="schedule")
     tournament_id = db.Column(Integer, ForeignKey('tournament.id'))
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), unique=True, nullable=False)
     rounds = db.relationship('Round', backref='schedule')
 
+    def __repr__(self):
+        return "<Schedule {}>".format(self.title)
 
 class Round(db.Model):
     """
@@ -96,6 +100,5 @@ class Draw(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id'))
-
 
 db.create_all()
