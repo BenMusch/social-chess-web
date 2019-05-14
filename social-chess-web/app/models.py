@@ -9,7 +9,8 @@ Base = declarative_base()
 
 from . import appbuilder, db
 
-class Tournament(tournament.Tournament, db.Model):
+
+class Tournament(db.Model):
     """
     A tournament is the top-level object
     """
