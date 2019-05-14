@@ -74,6 +74,7 @@ class CreateScheduleView(SimpleFormView):
     form_title = 'Create a schedule containing the selected players'
 
     def form_post(self, form):
+        import pdb; pdb.set_trace()
         players = db.session.query(Player).filter(Player.id.in_(form.players.data)).all()
 
         def make_chessnoun(p):
@@ -91,7 +92,11 @@ class CreateScheduleView(SimpleFormView):
         sched.schedule_players()
         sched.assign_scheduled_games_to_draws()
         sched._print_player_draws()
-        import pdb; pdb.set_trace()
+        all_rounds = sched.get_rounds()
+
+        for round_number, rounds in all_rounds:
+            db.sesion.add(round_obj)
+            db.session.commit()
 
 
 @appbuilder.app.errorhandler(404)

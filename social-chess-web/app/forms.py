@@ -1,7 +1,7 @@
 from flask_appbuilder.forms import DynamicForm
-from wtforms import widgets, fields
+from wtforms import widgets, fields, validators
 
-from app.models import Player
+from app.models import Player, Tournament
 from app import db
 
 
@@ -18,24 +18,31 @@ class MultiCheckboxField(fields.SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 
-def _get_player_choices():
+def _get_choices(model_type, get_label=lambda obj: obj.name):
     """
     Return id + name tuples to format them as WTForm-style choices in a multi-select
     input
     """
-    return [ (player.id, player.name) for player in db.session.query(Player).all() ]
+    return [ (obj.id, get_label(obj)) for obj in db.session.query(model_type).all() ]
 
 
 class ScheduleForm(DynamicForm):
     """
     Custom form to create a schedule with a given selection of players
     """
-    players = MultiCheckboxField(choices=_get_player_choices(), coerce=int)
+    players = MultiCheckboxField(choices=_get_choices(Player), coerce=int)
+    tournament = fields.SelectField(
+        choices=_get_choices(Tournament, lambda t: t.title),
+        coerce=int,
+        validators=[validators.required()]
+    )
+
 
     def __init__(self, *args, **kwargs):
         """
         Overried __init__ to re-initialize the players field with all of the current
-        players. Otherwise, it only loads players when the app first runs
+        players. Otherwise, it only loads choices when the app first runs
         """
         super(ScheduleForm, self).__init__(*args, **kwargs)
-        self.players.choices = _get_player_choices()
+        self.players.choices = _get_choices(Player)
+        self.tournament.choices = _get_choices(Tournament, lambda t: t.title)
