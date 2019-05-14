@@ -39,7 +39,7 @@ class ScheduleForm(DynamicForm):
     name = fields.StringField(u"Schedule name:", [validators.required()])
     num_rounds = fields.IntegerField(
         u"Number of rounds:",
-        [validators.reqired()],
+        [validators.required()],
         default=chessnouns.DEFAULT_NUMBER_OF_ROUNDS
     )
     players = MultiCheckboxField(choices=_get_choices(Player), coerce=int)
