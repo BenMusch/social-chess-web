@@ -2,7 +2,7 @@ from flask_appbuilder.forms import DynamicForm
 from wtforms import widgets, fields
 
 from app.models import Player
-from . import db
+from app import db
 
 
 class MultiCheckboxField(fields.SelectMultipleField):
