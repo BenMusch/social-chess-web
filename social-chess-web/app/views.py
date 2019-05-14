@@ -1,8 +1,9 @@
 from flask import render_template
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_appbuilder import ModelView, ModelRestApi
+from flask_appbuilder import ModelView, ModelRestApi, SimpleFormView
 from . import appbuilder, db
 from app.models import Player, Tournament, Schedule, Round, Draw, Game
+from app.forms import ScheduleForm
 
 """
     Create your Model based REST API::
@@ -63,6 +64,15 @@ class DrawView(ModelView):
     list_columns = ['id']
 
 
+class CreateScheduleView(SimpleFormView):
+    form = ScheduleForm
+    form_title = 'Create a schedule containing the selected players'
+
+    def form_post(self, form):
+        # select players: form.players.data
+        pass
+
+
 @appbuilder.app.errorhandler(404)
 def page_not_found(e):
     return (
@@ -114,5 +124,12 @@ appbuilder.add_view(
     DrawView,
     "Draws",
     icon = "fa-folder-open-o",
+    category = "Menu"
+)
+
+appbuilder.add_view(
+    CreateScheduleView,
+    "Schedule Generator",
+    icon = "fa-plus",
     category = "Menu"
 )
