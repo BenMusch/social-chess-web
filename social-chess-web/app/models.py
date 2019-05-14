@@ -9,7 +9,17 @@ Base = declarative_base()
 
 from . import appbuilder, db
 
-class Tournament(tournament.Tournament, db.Model):
+
+"""
+
+You can use the extra Flask-AppBuilder fields and Mixin's
+
+AuditMixin will add automatic timestamp of created and modified by who
+
+
+"""
+
+class Tournament(db.Model):
     """
     A tournament is the top-level object
     """

@@ -1,12 +1,8 @@
 from flask import render_template
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import ModelView, ModelRestApi, SimpleFormView
-from . import appbuilder, db
 
-import chessnouns
-from chessnouns import player, schedule, tournament
-from chessutilities import utilities
-
+from . import appbuilder, db, chess_adapters
 from app.models import Player, Tournament, Schedule, Round, Draw, Game
 from app.forms import ScheduleForm
 
@@ -47,29 +43,9 @@ class CreateScheduleView(SimpleFormView):
     form_title = 'Create a schedule containing the selected players'
 
     def form_post(self, form):
-        import pdb; pdb.set_trace()
         players = db.session.query(Player).filter(Player.id.in_(form.players.data)).all()
-
-        def make_chessnoun(p):
-            return player.Player(p.id, p.name, level=p.level, vip=p.vip)
-
-        players = list(map(make_chessnoun, players))
-        boards, lopsided, bye = utilities.get_number_of_boards_and_tweaks(len(players))
-        sched = schedule.Schedule(
-            players, chessnouns.DEFAULT_NUMBER_OF_ROUNDS, lopsided, bye
-        )
-        sched.sort_players()
-        sched.initialize_draws_for_players()
-        sched.shuffle_players()
-        a, b = sched.divide_players()
-        sched.schedule_players()
-        sched.assign_scheduled_games_to_draws()
-        sched._print_player_draws()
-        all_rounds = sched.get_rounds()
-
-        for round_number, rounds in all_rounds:
-            db.sesion.add(round_obj)
-            db.session.commit()
+        tournament = db.session.query(Tournament).get(form.tournament.data)
+        return chess_adapters.generate_schedule(players, tournament, "Test!")
 
 
 @appbuilder.app.errorhandler(404)
