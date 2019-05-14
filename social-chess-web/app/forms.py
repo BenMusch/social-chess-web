@@ -3,6 +3,7 @@ from wtforms import widgets, fields, validators
 
 from app.models import Player, Tournament
 from app import db
+import chessnouns
 
 
 class MultiCheckboxField(fields.SelectMultipleField):
@@ -30,12 +31,18 @@ class ScheduleForm(DynamicForm):
     """
     Custom form to create a schedule with a given selection of players
     """
-    players = MultiCheckboxField(choices=_get_choices(Player), coerce=int)
     tournament = fields.SelectField(
         choices=_get_choices(Tournament, lambda t: t.title),
         coerce=int,
         validators=[validators.required()]
     )
+    name = fields.StringField(u"Schedule name:", [validators.required()])
+    num_rounds = fields.IntegerField(
+        u"Number of rounds:",
+        [validators.reqired()],
+        default=chessnouns.DEFAULT_NUMBER_OF_ROUNDS
+    )
+    players = MultiCheckboxField(choices=_get_choices(Player), coerce=int)
 
 
     def __init__(self, *args, **kwargs):

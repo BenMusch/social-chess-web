@@ -74,28 +74,14 @@ def persist_schedule(schedule_noun, **kwargs):
         raise e
 
 
-MODEL_CONVERTERS = {
-    models.Player: player_chessnoun_from_model,
-}
-
-
-def chessnoun_from_model(model):
-    fun = MODEL_CONVERTERS.get(type(model))
-
-    if fun is None: raise ValueError("Cannot convert type %s" % type(model))
-    return fun(model)
-
-
-def generate_schedule(players, tournament, title):
+def generate_schedule(players, tournament, title, num_rounds):
     """
     Given a list of models.Players and models.Tournament, uses the chess library logic
     to create database entries of the schedule and rounds
     """
-    players = list(map(chessnoun_from_model, players))
+    players = list(map(player_chessnoun_from_model, players))
     boards, lopsided, bye = utilities.get_number_of_boards_and_tweaks(len(players))
-    sched = schedule.Schedule(
-        players, chessnouns.DEFAULT_NUMBER_OF_ROUNDS, lopsided, bye
-    )
+    sched = schedule.Schedule(players, num_rounds, lopsided, bye)
 
     sched.sort_players()
     sched.initialize_draws_for_players()

@@ -1,4 +1,6 @@
-from flask import render_template
+import traceback
+
+from flask import render_template, flash
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import ModelView, ModelRestApi, SimpleFormView
 
@@ -45,7 +47,14 @@ class CreateScheduleView(SimpleFormView):
     def form_post(self, form):
         players = db.session.query(Player).filter(Player.id.in_(form.players.data)).all()
         tournament = db.session.query(Tournament).get(form.tournament.data)
-        return chess_adapters.generate_schedule(players, tournament, "Test!")
+        try:
+            chess_adapters.generate_schedule(
+                players, tournament, form.name.data, form.num_rounds.data
+            )
+            flash("Schedule created", "info")
+        except Exception as e:
+            traceback.print_exc()
+            flash("Error creating schedule: %s" % str(e), "error")
 
 
 @appbuilder.app.errorhandler(404)
