@@ -2,21 +2,14 @@ from flask_appbuilder import Model
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from . import chessnouns
+from .chessnouns import player, tournament, draw, game, schedule
 
 Base = declarative_base()
 
 from . import appbuilder, db
 
-"""
-
-You can use the extra Flask-AppBuilder fields and Mixin's
-
-AuditMixin will add automatic timestamp of created and modified by who
-
-
-"""
-
-class Tournament(db.Model):
+class Tournament(tournament.Tournament, db.Model):
     """
     A tournament is the top-level object
     """
@@ -29,7 +22,8 @@ class Tournament(db.Model):
     def __repr__(self):
         return "<Tournament {}>".format(self.title)
 
-class Player(db.Model):
+
+class Player(player.Player, db.Model):
     """
     The player class doesn't reference any other tables. It is liked
     to other tables through join tables. But you can't jump from
@@ -46,7 +40,7 @@ class Player(db.Model):
         return "<Player {}>".format(self.name)
 
 
-class Game(db.Model):
+class Game(game.Game, db.Model):
     """
     The game class is the heart of the system. Many other
     tables refer to it.
@@ -65,7 +59,7 @@ class Game(db.Model):
         return "<Game: {} vs {} Result: {} >".format(self.player_one_id, self.player_two_id, self.result)
 
 
-class Schedule(db.Model):
+class Schedule(schedule.Schedule, db.Model):
     """
     A schedule is just a collection of rounds
     who have games
@@ -78,10 +72,11 @@ class Schedule(db.Model):
     def __repr__(self):
         return "<Schedule {}>".format(self.title)
 
+
 class Round(db.Model):
     """
     A Round is just a collection of games in a tournament
-    and it's kept simple
+    and it's kept simple. We don't need a base class
     """
     id = db.Column(db.Integer, primary_key=True)
     round_number = db.Column(db.Integer, default=1)
@@ -92,7 +87,7 @@ class Round(db.Model):
         return "<Round: {} For Schedule {}>".format(self.round_number, self.schedule_id)
 
 
-class Draw(db.Model):
+class Draw(draw.Draw, db.Model):
     """
     A draw is just a shortcut table that has
     the player's games for a particular tournament
@@ -100,5 +95,6 @@ class Draw(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id'))
+
 
 db.create_all()
