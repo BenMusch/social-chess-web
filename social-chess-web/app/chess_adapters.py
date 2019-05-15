@@ -123,7 +123,8 @@ def get_rounds_for_leaderboard(schedule_identifier):
     for ind_round in scheduled_rounds:
         # Let's get all the games for this round
         print("Round ID was {}".format(ind_round.id))
-        round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id).all()
+        round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id)
+
 
         # Let's get number of games
         number_round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id).count()
@@ -159,6 +160,9 @@ def get_rounds_for_leaderboard(schedule_identifier):
     # We need to get the games again
     target_round_games = db.session.query(models.Game).filter_by(round_id=(last_completed_round + 1))
 
+    target_count = db.session.query(models.Game).filter_by(round_id=(last_completed_round + 1)).count()
+    print("Getting ready for target games with number at {}".format(target_count))
+
     game_count = 1
     for ind_game in target_round_games:
         # We need to create a game object
@@ -177,6 +181,16 @@ def get_rounds_for_leaderboard(schedule_identifier):
         first_db_player = db.session.query(models.Player).get(first_player_id)
         first_player = create_player(first_player_id, first_db_player.name, first_db_player.level)
 
+        # Test for a bye
+        if second_player_id == chessnouns.BYE_ID:
+            noun_game = game.Game.create_bye_game(first_player)
+        else:
+            second_db_player = db.session.query(models.Player).get(second_player_id)
+            second_player = create_player(second_player_id, second_db_player.name, second_db_player.level)
+
+            noun_game = game.Game(first_player, second_player, onewhite=one_white,
+                                  twowhite=two_white, bye=is_bye)
+
         second_db_player_ = db.session.query(models.Player).get(second_player_id)
         second_player = create_player(second_player_id, second_db_player_.name, second_db_player_.level)
 
@@ -189,7 +203,7 @@ def get_rounds_for_leaderboard(schedule_identifier):
         current_dict[game_count] = str(noun_game)
         game_count += 1
 
-    if (last_completed_round < 7):
+    if last_completed_round < 7:
         next_round_games = db.session.query(models.Game).filter_by(round_id=(last_completed_round + 2))
 
         game_count = 1
