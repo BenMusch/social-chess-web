@@ -11,7 +11,6 @@ from app.forms import ScheduleForm, get_enum_field
 from app.index import MyIndexView
 import chessnouns
 
-
 """
     Application wide 404 error handler
 """
@@ -21,18 +20,20 @@ class PlayerView(ModelView):
     datamodel = SQLAInterface(Player)
     list_columns = ['name', 'level']
 
+
 class ScheduleView(ModelView):
     datamodel = SQLAInterface(Schedule)
     list_columns = ['title']
+
 
 class TournamentView(ModelView):
     datamodel = SQLAInterface(Tournament)
     list_columns = ['title']
 
+
 class GameView(ModelView):
     datamodel = SQLAInterface(Game)
     list_columns = ['id', 'round_number', 'first_player', 'second_player', 'outcome']
-
 
     _result_choices = [
         (chessnouns.NO_RESULT, 'No result'),
@@ -56,9 +57,8 @@ class GameView(ModelView):
     ]
     _color_code_field = get_enum_field(_color_code_choices)
 
-
-    edit_form_extra_fields = { 'result': _result_field, 'color_code': _color_code_field }
-    add_form_extra_fields = { 'result': _result_field, 'color_code': _color_code_field }
+    edit_form_extra_fields = {'result': _result_field, 'color_code': _color_code_field}
+    add_form_extra_fields = {'result': _result_field, 'color_code': _color_code_field}
 
 
 class RoundView(ModelView):
@@ -87,15 +87,64 @@ class CreateScheduleView(SimpleFormView):
             traceback.print_exc()
             flash("Error creating schedule: %s" % str(e), "error")
 
+
 class LeaderboardView(BaseView):
     route_base = "/leaderboardview"
 
-    @expose('/current/<int:param1>')
-    def current(self, param1):
+    @expose('/current/<int:schedule_identifier>')
+    def current(self, schedule_identifier):
 
-        slot_list = chess_adapters.get_slots_for_leaderboard(param1)
-        return self.render_template("board.html", slot_list=slot_list)
+        number_rounds = chessnouns.DEFAULT_NUMBER_OF_ROUNDS
+        current_round = 1
 
+        if current_round < number_rounds:
+            next_round = current_round + 1
+        else:
+            next_round = current_round
+
+        # Now we need two dictionaries
+        # [board] [game string]
+
+        current_round_dict = {}
+        next_round_dict = {}
+
+        current_round_time = ""
+        next_round_time = ""
+
+        if (current_round == 1):
+            current_round_time = "6:00 pm"
+            next_round_time = "6:15 pm"
+        elif (current_round == 2):
+            current_round_time = "6:15 pm"
+            next_round_time = "6:30 pm"
+        elif (current_round == 3):
+            current_round_time = "6:30 pm"
+            next_round_time = "6:45 pm"
+        elif (current_round == 4):
+            current_round_time = "6:45 pm"
+            next_round_time = "7:00 pm"
+        elif (current_round == 5):
+            current_round_time = "7:00 pm"
+            next_round_time = "7:15 pm"
+        elif (current_round == 6):
+            current_round_time = "7:15 pm"
+            next_round_time = "7:30 pm"
+        elif (current_round == 7):
+            current_round_time = "7:30 pm"
+            next_round_time = "7:45 pm"
+        else:
+            current_round_time = "7:45 pm"
+            next_round_time = "8:00 pm"
+
+
+        # So now we need to get the scheduled rounds
+        current_round_dict, next_round_dict = chess_adapters.get_rounds_for_leaderboard(schedule_identifier)
+
+        slot_list = chess_adapters.get_slots_for_leaderboard(schedule_identifier)
+        return self.render_template("board.html", slot_list=slot_list, current_round=current_round,
+                                    next_round=next_round,current_round_dict=current_round_dict,
+                                    next_round_dict=next_round_dict, current_round_time=current_round_time,
+                                    next_round_time=next_round_time)
 
 
 @appbuilder.app.errorhandler(404)
@@ -115,48 +164,48 @@ appbuilder.add_view_no_menu(LeaderboardView())
 appbuilder.add_view(
     PlayerView,
     "Players",
-    icon = "fa-folder-open-o",
-    category = "Menu"
+    icon="fa-folder-open-o",
+    category="Menu"
 )
 
 appbuilder.add_view(
     TournamentView,
     "Tournaments",
-    icon = "fa-folder-open-o",
-    category = "Menu"
+    icon="fa-folder-open-o",
+    category="Menu"
 )
 
 appbuilder.add_view(
     ScheduleView,
     "Schedules",
-    icon = "fa-folder-open-o",
-    category = "Menu"
+    icon="fa-folder-open-o",
+    category="Menu"
 )
 
 appbuilder.add_view(
     RoundView,
     "Rounds",
-    icon = "fa-folder-open-o",
-    category = "Menu"
+    icon="fa-folder-open-o",
+    category="Menu"
 )
 
 appbuilder.add_view(
     GameView,
     "Games",
-    icon = "fa-folder-open-o",
-    category = "Menu"
+    icon="fa-folder-open-o",
+    category="Menu"
 )
 
 appbuilder.add_view(
     DrawView,
     "Draws",
-    icon = "fa-folder-open-o",
-    category = "Menu"
+    icon="fa-folder-open-o",
+    category="Menu"
 )
 
 appbuilder.add_view(
     CreateScheduleView,
     "Schedule Generator",
-    icon = "fa-plus",
-    category = "Menu"
+    icon="fa-plus",
+    category="Menu"
 )

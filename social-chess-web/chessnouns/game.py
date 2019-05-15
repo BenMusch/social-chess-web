@@ -52,17 +52,17 @@ class Game(object):
         elif self._color_code == chessnouns.PLAYER_ONE_IS_WHITE:
             return_line = "{}".format(self._player_one.get_name())
             return_line += level_string.format(self._player_one.get_level() if chessnouns.SHOW_LEVELS else "")
-            return_line += "[W] vs. {}".format(self._player_two.get_name())
+            return_line += " [W] vs. {}".format(self._player_two.get_name())
             return_line += level_string.format(self._player_two.get_level() if chessnouns.SHOW_LEVELS else "")
-            return_line += "[B]"
+            return_line += " [B]"
 
         # Brian Jencunas(3)[W] vs. Christian Greve(4)[B]
         else:
             return_line = "{}".format(self._player_two.get_name())
             return_line += level_string.format(self._player_two.get_level() if chessnouns.SHOW_LEVELS else "")
-            return_line += "[W] vs. {}".format(self._player_one.get_name())
+            return_line += " [W] vs. {}".format(self._player_one.get_name())
             return_line += level_string.format(self._player_one.get_level() if chessnouns.SHOW_LEVELS else "")
-            return_line += "[B]"
+            return_line += " [B]"
 
         return return_line
 

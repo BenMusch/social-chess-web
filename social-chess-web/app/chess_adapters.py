@@ -10,11 +10,14 @@ def player_chessnoun_from_model(p):
 
     return player.Player(p.id, p.name, p.level, False, p.vip)
 
+
 def get_bye_player():
     return player.Player.make_bye_player()
 
+
 def create_player(id, name, level):
     return player.Player(id, name, level)
+
 
 def persist_game(game, **kwargs):
     """
@@ -97,6 +100,134 @@ def generate_schedule(players, tournament, title, num_rounds):
     sched.assign_scheduled_games_to_draws()
     sched._print_player_draws()
     return persist_schedule(sched, tournament=tournament, title=title)
+
+
+def get_rounds_for_leaderboard(schedule_identifier):
+
+    print("ENTERING GETTING ROUNDS")
+    current_dict = {}
+    next_dict = {}
+
+    #current_dict[1] = "Mark Money (W) vs. Steve Koczela (B)"
+    #current_dict[2] = "Ed Lyons (W) vs. Steve Koczela (B)"
+
+    #next_dict[1] = "Welsh Finging (W) vs.Mary Sue (B)"
+    #next_dict[2] = "Tracy Corley (W) vs. Christian Greve(B)"
+
+    scheduled_rounds = db.session.query(models.Round).filter_by(schedule_id=schedule_identifier)
+
+    last_completed_round = 0
+
+    # Now we need to iterate
+    for ind_round in scheduled_rounds:
+        # Let's get all the games for this round
+        round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id)
+        # Let's get number of games
+        number_round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id).count()
+
+        print("WE ARE LOOKING AT ROUND {} with {} games".format((last_completed_round+1), number_round_games))
+
+        # Now let's go through them
+        complete = False
+
+        # We will go through the games
+        game_count = 0
+        for ind_game in round_games:
+            print("Looking at game {}".format((game_count + 1)))
+            if ind_game.result == chessnouns.NO_RESULT:
+                # As soon as we get a no result, we bail
+                break
+            else:
+                game_count += 1
+
+        if game_count == number_round_games:
+            # OK, round complete
+            last_completed_round += 1
+            continue
+        else:
+            # We didn't complete
+            break
+
+    # So what have we learned here?
+    # Let's say the last completed round = 0
+
+    print("Our last completed round was {}".format(last_completed_round))
+
+    # We need to get the games again
+    target_round_games = db.session.query(models.Game).filter_by(round_id=(last_completed_round + 1))
+
+    game_count = 1
+    for ind_game in target_round_games:
+        # We need to create a game object
+        first_player_id = ind_game.player_one_id
+        second_player_id = ind_game.player_two_id
+
+        if ind_game.color_code == chessnouns.PLAYER_ONE_IS_WHITE:
+            one_white = True
+            two_white = False
+        else:
+            one_white = False
+            two_white = True
+
+        is_bye = (ind_game.bye == 1)
+
+        first_db_player = db.session.query(models.Player).get(first_player_id)
+        first_player = create_player(first_player_id, first_db_player.name, first_db_player.level)
+
+        second_db_player_ = db.session.query(models.Player).get(second_player_id)
+        second_player = create_player(second_player_id, second_db_player_.name, second_db_player_.level)
+
+        noun_game = game.Game(first_player, second_player, onewhite=one_white,
+                              twowhite=two_white, bye=is_bye)
+
+        # Now we need to add the result if there is one
+        noun_game.set_result(ind_game.result)
+
+        current_dict[game_count] = str(noun_game)
+        game_count += 1
+
+    if (last_completed_round < 7):
+        next_round_games = db.session.query(models.Game).filter_by(round_id=(last_completed_round + 2))
+
+        game_count = 1
+        for ind_game in next_round_games:
+            # We need to create a game object
+            first_player_id = ind_game.player_one_id
+            second_player_id = ind_game.player_two_id
+
+            if ind_game.color_code == chessnouns.PLAYER_ONE_IS_WHITE:
+                one_white = True
+                two_white = False
+            else:
+                one_white = False
+                two_white = True
+
+            is_bye = (ind_game.bye == 1)
+
+            first_db_player = db.session.query(models.Player).get(first_player_id)
+            first_player = create_player(first_player_id, first_db_player.name, first_db_player.level)
+
+            # Test for a bye
+            if second_player_id == chessnouns.BYE_ID:
+                noun_game = game.Game.create_bye_game(first_player)
+            else:
+                second_db_player = db.session.query(models.Player).get(second_player_id)
+                second_player = create_player(second_player_id, second_db_player.name, second_db_player.level)
+
+                noun_game = game.Game(first_player, second_player, onewhite=one_white,
+                                      twowhite=two_white, bye=is_bye)
+
+            # Now we need to add the result if there is one
+            noun_game.set_result(ind_game.result)
+
+            next_dict[game_count] = str(noun_game)
+            game_count += 1
+
+
+    else:
+        next_round_games = {}
+
+    return current_dict, next_dict
 
 
 def get_slots_for_leaderboard(schedule_identifier):
