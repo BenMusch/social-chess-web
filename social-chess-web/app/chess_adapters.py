@@ -108,16 +108,8 @@ def get_rounds_for_leaderboard(schedule_identifier):
     current_dict = {}
     next_dict = {}
 
-    #current_dict[1] = "Mark Money (W) vs. Steve Koczela (B)"
-    #current_dict[2] = "Ed Lyons (W) vs. Steve Koczela (B)"
-
-    #next_dict[1] = "Welsh Finging (W) vs.Mary Sue (B)"
-    #next_dict[2] = "Tracy Corley (W) vs. Christian Greve(B)"
-
     scheduled_rounds = db.session.query(models.Round).filter_by(schedule_id=schedule_identifier).all()
-
     current_round = 1
-
     last_completed_round = 0
 
     # Now we need to iterate
@@ -139,7 +131,7 @@ def get_rounds_for_leaderboard(schedule_identifier):
         game_count = 0
         for ind_game in round_games:
             print("Looking at game {}".format((game_count + 1)))
-            if ind_game.result == chessnouns.NO_RESULT:
+            if not ind_game.bye and ind_game.result == chessnouns.NO_RESULT:
                 # As soon as we get a no result, we bail
                 break
             else:
