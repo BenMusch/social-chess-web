@@ -98,9 +98,9 @@ class Game(db.Model):
         letter appended if we do have it
         """
 
-        second_player = db.session.query(Player).get(self.player_two_id)
-        if not second_player:
+        if self.player_two_id is None:
             return "Bye"
+        second_player = db.session.query(Player).get(self.player_two_id)
 
         name_string = second_player.name
 

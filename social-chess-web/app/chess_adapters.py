@@ -204,9 +204,14 @@ def get_rounds_for_leaderboard(schedule_identifier):
 
         game_count = 1
         for ind_game in next_round_games:
-            # We need to create a game object
-            first_player_id = ind_game.player_one_id
-            second_player_id = ind_game.player_two_id
+            is_bye = (ind_game.bye == 1)
+            if is_bye:
+                # force player_one to exist, even in the case of a bye
+                first_player_id = ind_game.player_one_id or ind_game.player_two_id
+                second_player_id = chessnouns.BYE_ID
+            else:
+                first_player_id = ind_game.player_one_id
+                second_player_id = ind_game.player_two_id
 
             if ind_game.color_code == chessnouns.PLAYER_ONE_IS_WHITE:
                 one_white = True
@@ -214,8 +219,6 @@ def get_rounds_for_leaderboard(schedule_identifier):
             else:
                 one_white = False
                 two_white = True
-
-            is_bye = (ind_game.bye == 1)
 
             first_db_player = db.session.query(models.Player).get(first_player_id)
             first_player = create_player(first_player_id, first_db_player.name, first_db_player.level)
@@ -268,14 +271,14 @@ def get_slots_for_leaderboard(schedule_identifier):
         for ind_game in round_games:
 
             player_one_id = ind_game.player_one_id
-            if player_one_id not in player_id_set:
+            if player_one_id is not None and player_one_id not in player_id_set:
                 # OK, get the player
                 player = db.session.query(models.Player).get(player_one_id)
                 players_dict[player_one_id] = create_player(player_one_id, player.name, player.level)
                 player_id_set.add(player_one_id)
 
             player_two_id = ind_game.player_two_id
-            if player_two_id not in player_id_set:
+            if player_two_id is not None and player_two_id not in player_id_set:
                 # OK, get the player
                 player = db.session.query(models.Player).get(player_two_id)
                 players_dict[player_two_id] = create_player(player_two_id, player.name, player.level)
@@ -309,8 +312,8 @@ def get_slots_for_leaderboard(schedule_identifier):
 
             is_bye = (ind_game.bye == 1)
 
-            first_player = players_dict[first_player_id]
-            second_player = players_dict[second_player_id]
+            first_player = first_player_id and players_dict[first_player_id]
+            second_player = second_player_id and players_dict[second_player_id]
 
             noun_game = game.Game(first_player, second_player, onewhite=one_white,
                                   twowhite=two_white, bye=is_bye)
@@ -319,7 +322,7 @@ def get_slots_for_leaderboard(schedule_identifier):
             noun_game.set_result(ind_game.result)
 
             first_player.get_draw().add_game_with_game(noun_game)
-            if second_player.get_id() != chessnouns.BYE_ID:
+            if second_player and second_player.get_id() != chessnouns.BYE_ID:
                 second_player.get_draw().add_game_with_game(noun_game)
 
     slot_tuple_list = []
