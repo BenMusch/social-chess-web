@@ -244,7 +244,10 @@ class Draw(object):
             if winning_player.get_name() == self._draw_player.get_name():
                 # OK, so we won
                 my_level = self._draw_player.get_level()
-                other_level = losing_player.get_level()
+                if individual_game.is_bye():
+                    other_level = my_level
+                else:
+                    other_level = losing_player.get_level()
 
                 if my_level == chessnouns.KING:
                     weighted_points += self._get_points_for_level(other_level)
