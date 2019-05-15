@@ -116,6 +116,7 @@ def get_rounds_for_leaderboard(schedule_identifier):
 
     scheduled_rounds = db.session.query(models.Round).filter_by(schedule_id=schedule_identifier).all()
 
+    current_round = 1
 
     last_completed_round = 0
 
@@ -183,6 +184,7 @@ def get_rounds_for_leaderboard(schedule_identifier):
 
         # Test for a bye
         if second_player_id == chessnouns.BYE_ID:
+            print("We got a bye")
             noun_game = game.Game.create_bye_game(first_player)
         else:
             second_db_player = db.session.query(models.Player).get(second_player_id)
@@ -191,11 +193,13 @@ def get_rounds_for_leaderboard(schedule_identifier):
             noun_game = game.Game(first_player, second_player, onewhite=one_white,
                                   twowhite=two_white, bye=is_bye)
 
+        """
         second_db_player_ = db.session.query(models.Player).get(second_player_id)
         second_player = create_player(second_player_id, second_db_player_.name, second_db_player_.level)
 
         noun_game = game.Game(first_player, second_player, onewhite=one_white,
                               twowhite=two_white, bye=is_bye)
+        """
 
         # Now we need to add the result if there is one
         noun_game.set_result(ind_game.result)
@@ -244,7 +248,7 @@ def get_rounds_for_leaderboard(schedule_identifier):
     else:
         next_round_games = {}
 
-    return current_dict, next_dict
+    return (current_round + 1), current_dict, next_dict
 
 
 def get_slots_for_leaderboard(schedule_identifier):

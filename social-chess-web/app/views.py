@@ -95,7 +95,9 @@ class LeaderboardView(BaseView):
     def current(self, schedule_identifier):
 
         number_rounds = chessnouns.DEFAULT_NUMBER_OF_ROUNDS
-        current_round = 1
+
+        # So now we need to get the scheduled rounds
+        current_round, current_round_dict, next_round_dict = chess_adapters.get_rounds_for_leaderboard(schedule_identifier)
 
         if current_round < number_rounds:
             next_round = current_round + 1
@@ -104,9 +106,6 @@ class LeaderboardView(BaseView):
 
         # Now we need two dictionaries
         # [board] [game string]
-
-        current_round_dict = {}
-        next_round_dict = {}
 
         current_round_time = ""
         next_round_time = ""
@@ -135,10 +134,6 @@ class LeaderboardView(BaseView):
         else:
             current_round_time = "7:45 pm"
             next_round_time = "8:00 pm"
-
-
-        # So now we need to get the scheduled rounds
-        current_round_dict, next_round_dict = chess_adapters.get_rounds_for_leaderboard(schedule_identifier)
 
         slot_list = chess_adapters.get_slots_for_leaderboard(schedule_identifier)
         return self.render_template("board.html", slot_list=slot_list, current_round=current_round,
