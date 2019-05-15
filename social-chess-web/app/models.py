@@ -24,7 +24,7 @@ class Tournament(db.Model):
         return "<Tournament {}>".format(self.title)
 
 
-class Player(player.Player, db.Model):
+class Player(db.Model):
     """
     The player class doesn't reference any other tables. It is liked
     to other tables through join tables. But you can't jump from
@@ -41,7 +41,7 @@ class Player(player.Player, db.Model):
         return "<Player {}>".format(self.name)
 
 
-class Game(game.Game, db.Model):
+class Game(db.Model):
     """
     The game class is the heart of the system. Many other
     tables refer to it.
@@ -60,7 +60,7 @@ class Game(game.Game, db.Model):
         return "<Game: {} vs {} Result: {} >".format(self.player_one_id, self.player_two_id, self.result)
 
 
-class Schedule(schedule.Schedule, db.Model):
+class Schedule(db.Model):
     """
     A schedule is just a collection of rounds
     who have games
