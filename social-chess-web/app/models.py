@@ -57,6 +57,9 @@ class Game(db.Model):
     round_id = db.Column(db.Integer, db.ForeignKey('round.id'))
 
     def outcome(self):
+
+        # First test for bye
+
         if self.result == chessnouns.NO_RESULT:
             return "No result"
         elif self.result == chessnouns.WHITE_WINS:
@@ -66,6 +69,10 @@ class Game(db.Model):
         else:
             return "Draw"
 
+    def round_number(self):
+        current_round = db.session.query(Round).get(self.round_id)
+        return str(current_round.round_number)
+
     def first_player(self):
         """
         This method is here to add the color code to the player name
@@ -73,6 +80,8 @@ class Game(db.Model):
         letter appended if we do have it
         """
         first_player = db.session.query(Player).get(self.player_one_id)
+        if not first_player:
+            return "Bye"
         name_string = first_player.name
 
         if self.color_code == chessnouns.NO_COLOR_SELECTED:
@@ -88,7 +97,11 @@ class Game(db.Model):
         if we have it. It just returns the name if we do not, but the color
         letter appended if we do have it
         """
+
         second_player = db.session.query(Player).get(self.player_two_id)
+        if not second_player:
+            return "Bye"
+
         name_string = second_player.name
 
         if self.color_code == chessnouns.NO_COLOR_SELECTED:
@@ -129,8 +142,11 @@ class Round(db.Model):
 
     def __repr__(self):
         schedule = db.session.query(Schedule).get(self.schedule_id)
+        title = "No schedule"
+        if schedule:
+            title = schedule.title
 
-        return "Round: {} For Schedule {}".format(self.round_number, schedule.title)
+        return "R: {} In {}".format(self.round_number, title)
 
 
 class Draw(db.Model):

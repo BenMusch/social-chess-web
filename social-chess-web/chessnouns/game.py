@@ -22,7 +22,9 @@ class Game(object):
 
     @classmethod
     def create_bye_game(cls, player_getting_bye, onewhite=True, twowhite=False):
-        return Game(player_getting_bye, player.Player.make_bye_player(), onewhite=onewhite, twowhite=twowhite, bye=True)
+        bye_game = Game(player_getting_bye, player.Player.make_bye_player(), onewhite=onewhite, twowhite=twowhite, bye=True)
+        bye_game.set_result(chessnouns.WHITE_WINS)
+        return bye_game
 
     def __str__(self):
 

@@ -1,3 +1,19 @@
 ul#players {
   column-count: 3;
 }
+table#leaderboard {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th#xx, tr#xx, td#xx {
+  border: 1px solid #dddddd;
+  text-align: right;
+  padding: 8px;
+  font-size: xx-large;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}

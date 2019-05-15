@@ -2,7 +2,7 @@ import traceback
 
 from flask import render_template, flash
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_appbuilder import ModelView, ModelRestApi, SimpleFormView
+from flask_appbuilder import ModelView, ModelRestApi, SimpleFormView, BaseView, expose
 from wtforms import fields, validators
 
 from . import appbuilder, db, chess_adapters
@@ -15,9 +15,6 @@ import chessnouns
 """
     Application wide 404 error handler
 """
-
-def get_string():
-    return "Hello"
 
 
 class PlayerView(ModelView):
@@ -34,7 +31,7 @@ class TournamentView(ModelView):
 
 class GameView(ModelView):
     datamodel = SQLAInterface(Game)
-    list_columns = ['id', 'round', 'first_player', 'second_player', 'outcome']
+    list_columns = ['id', 'round_number', 'first_player', 'second_player', 'outcome']
 
 
     _result_choices = [
@@ -90,6 +87,16 @@ class CreateScheduleView(SimpleFormView):
             traceback.print_exc()
             flash("Error creating schedule: %s" % str(e), "error")
 
+class LeaderboardView(BaseView):
+    route_base = "/leaderboardview"
+
+    @expose('/current/<int:param1>')
+    def current(self, param1):
+
+        slot_list = chess_adapters.get_slots_for_leaderboard(param1)
+        return self.render_template("board.html", slot_list=slot_list)
+
+
 
 @appbuilder.app.errorhandler(404)
 def page_not_found(e):
@@ -102,6 +109,8 @@ def page_not_found(e):
 
 
 db.create_all()
+
+appbuilder.add_view_no_menu(LeaderboardView())
 
 appbuilder.add_view(
     PlayerView,

@@ -232,6 +232,8 @@ class Draw(object):
         """
 
         for individual_game in self.get_games():
+            if individual_game.get_result() == chessnouns.NO_RESULT:
+                continue
             if individual_game.get_result() == chessnouns.DRAW:
                 # OK, so there is a draw
                 weighted_points += 0.5
@@ -290,7 +292,11 @@ class Draw(object):
         for individual_game in self.get_games():
             count += 1
             logger.debug("Entering game {} ".format(count))
+            if individual_game.get_result() == chessnouns.NO_RESULT:
+                logger.debug("No result yet")
+                continue
             if individual_game.get_result() == chessnouns.DRAW:
+                logger.debug("It was a draw")
                 # OK, so there is a draw
                 # print("It was a draw")
                 raw_points += 0.5
@@ -298,6 +304,7 @@ class Draw(object):
 
             winning_player, losing_player = individual_game.get_winning_and_losing_player()
 
+            logger.debug("Checking out winner and loser")
             if winning_player.get_name() == self._draw_player.get_name():
                 logger.debug("It was a win for {}({}) ".format(winning_player.get_name(), winning_player.get_level()))
                 logger.debug("It was against: {}({}) ".format(losing_player.get_name(), losing_player.get_level()))

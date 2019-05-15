@@ -31,6 +31,10 @@ class Slot(object):
     def get_weighted_score(self):
         return self._weighted_points
 
+    def get_raw_points(self):
+        return self._raw_points
+
+
     def get_player(self):
         return self._player
 
