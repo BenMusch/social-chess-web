@@ -49,8 +49,10 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     result = db.Column(db.Integer, default=0)
     player_one_id = db.Column(db.Integer, db.ForeignKey('player.id'))
+    player_one = relationship("Player", foreign_keys=[player_one_id])
     player_one_draw_id = db.Column(db.Integer, db.ForeignKey('draw.id'))
     player_two_id = db.Column(db.Integer, db.ForeignKey('player.id'))
+    player_two = relationship("Player", foreign_keys=[player_two_id])
     player_two_draw_id = db.Column(db.Integer, db.ForeignKey('draw.id'))
     color_code = db.Column(db.Integer, default=0)
     bye = db.Column(db.Boolean, default=False)
@@ -68,7 +70,7 @@ class Schedule(db.Model):
     tournament_id = db.Column(Integer, ForeignKey('tournament.id'))
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
-    rounds = db.relationship('Round', backref='schedule')
+    rounds = relationship('Round', backref='schedule')
 
     def __repr__(self):
         return "<Schedule {}>".format(self.title)
@@ -88,7 +90,7 @@ class Round(db.Model):
         return "<Round: {} For Schedule {}>".format(self.round_number, self.schedule_id)
 
 
-class Draw(draw.Draw, db.Model):
+class Draw(db.Model):
     """
     A draw is just a shortcut table that has
     the player's games for a particular tournament

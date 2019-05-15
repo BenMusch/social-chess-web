@@ -3,10 +3,13 @@ import traceback
 from flask import render_template, flash
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import ModelView, ModelRestApi, SimpleFormView
+from wtforms import fields, validators
 
 from . import appbuilder, db, chess_adapters
 from app.models import Player, Tournament, Schedule, Round, Draw, Game
-from app.forms import ScheduleForm
+from app.forms import ScheduleForm, get_enum_field
+from app.index import MyIndexView
+import chessnouns
 
 
 """
@@ -27,7 +30,25 @@ class TournamentView(ModelView):
 
 class GameView(ModelView):
     datamodel = SQLAInterface(Game)
-    list_columns = ['id']
+    list_columns = ['id', 'player_one', 'player_two']
+
+    _result_choices = [
+        (chessnouns.NO_RESULT, 'No result'),
+        (chessnouns.WHITE_WINS, 'White wins'),
+        (chessnouns.BLACK_WINS, 'Black wins'),
+        (chessnouns.DRAW, 'Draw')
+    ]
+    _result_field = get_enum_field(_result_choices, chessnouns.NO_RESULT)
+
+    _color_code_choices = [
+        (chessnouns.PLAYER_ONE_IS_WHITE, 'Player 1 is white'),
+        (chessnouns.PLAYER_ONE_IS_BLACK, 'Player 1 is black'),
+        (chessnouns.NO_COLOR_SELECTED, 'No color selected')
+    ]
+    _color_code_field = get_enum_field(_color_code_choices)
+
+    edit_form_extra_fields = { 'result': _result_field, 'color_code': _color_code_field }
+    add_form_extra_fields = { 'result': _result_field, 'color_code': _color_code_field }
 
 
 class RoundView(ModelView):
