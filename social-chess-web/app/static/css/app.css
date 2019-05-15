@@ -7,13 +7,18 @@ table#leaderboard {
   width: 100%;
 }
 
-th#xx, tr#xx, td#xx {
-  border: 1px solid #dddddd;
-  text-align: right;
-  padding: 8px;
-  font-size: xx-large;
+.thead-dark {
+  color: #fff;
+  background-color: #212529;
+  border-color: #32383e
 }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
+.jumbotron {
+  background-color: #fff;
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 35px;
+  }
 }

@@ -1,31 +1,65 @@
 {% extends "appbuilder/baselayout.html" %}
 
 {% block head_css %}
-  {{ super() }}
-  <link rel="stylesheet" href="{{url_for('static',filename='css/app.css')}}"></link>
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/app.css')}}"></link>
 {% endblock %}
 
 
 {% block content %}
 <div class="jumbotron">
-  <div class="container">
-       <h1>{{ "Leaderboard" }}</h1>
-      <table id="leaderboard">
-          <tr id="xx">
-            <th id="xx">Name</th>
-            <th id="xx">Rounds&nbsp;</th>
-            <th id="xx">Points&nbsp;</th>
-            <th id="xx">Weighted</th>
-          </tr>
-          {% for slot in slot_list: %}
-            <tr id="xx">
-                <td id="xx">{{ slot.get_player().get_name() }}</td>
-                <td id="xx">{{ slot.get_rounds_completed() }}</td>
-                <td id="xx">{{ slot.get_raw_points() }}</td>
-                <td id="xx">{{ slot.get_weighted_score() }}</td>
-            </tr>
-          {% endfor %}
-      </table>
-  </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col col-lg-6">
+                <h1>Current Round</h1>
+                <table id="next_round" class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr id="xx">
+                            <th id="xx">Board #</th>
+                            <th id="xx">Players</th>
+                        </tr>
+                    </thead>
+                    <tr id="xx">
+                        <td id="xx">1</td>
+                        <td id="xx">Ed Lyons vs. Steve Koczela</td>
+                    </tr>
+                    <tr id="xx">
+                        <td id="xx">2</td>
+                        <td id="xx">Preston Epps vs. Tracey Corley</td>
+                    </tr>
+                    <tr id="xx">
+                        <td id="xx">3</td>
+                        <td id="xx">Ed Lyons vs. Steve Koczela</td>
+                    </tr>
+                    <tr id="xx">
+                        <td id="xx">4</td>
+                        <td id="xx">John Smith vs. Brad Wyatt</td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="col col-lg-6">
+                <h1>Leaderboard</h1>
+                <table id="leaderboard" class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr id="xx">
+                            <th id="xx">Name</th>
+                            <th id="xx">Rounds</th>
+                            <th id="xx">Points</th>
+                            <th id="xx">Weighted</th>
+                        </tr>
+                    </thead>
+                    {% for slot in slot_list: %}
+                    <tr id="xx">
+                        <td id="xx">{{ slot.get_player().get_name() }}</td>
+                        <td id="xx">{{ slot.get_rounds_completed() }}</td>
+                        <td id="xx">{{ slot.get_raw_points() }}</td>
+                        <td id="xx">{{ slot.get_weighted_score() }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
