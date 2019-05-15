@@ -16,6 +16,10 @@ import chessnouns
     Application wide 404 error handler
 """
 
+def get_string():
+    return "Hello"
+
+
 class PlayerView(ModelView):
     datamodel = SQLAInterface(Player)
     list_columns = ['name', 'level']
@@ -30,7 +34,8 @@ class TournamentView(ModelView):
 
 class GameView(ModelView):
     datamodel = SQLAInterface(Game)
-    list_columns = ['id', 'player_one', 'player_two']
+    list_columns = ['id', 'round', 'first_player', 'second_player', 'outcome']
+
 
     _result_choices = [
         (chessnouns.NO_RESULT, 'No result'),
@@ -40,12 +45,20 @@ class GameView(ModelView):
     ]
     _result_field = get_enum_field(_result_choices, chessnouns.NO_RESULT)
 
+    show_fieldsets = [
+        (
+            'Summary',
+            {'fields': ['first_player', 'second_player', 'outcome']}
+        ),
+    ]
+
     _color_code_choices = [
         (chessnouns.PLAYER_ONE_IS_WHITE, 'Player 1 is white'),
         (chessnouns.PLAYER_ONE_IS_BLACK, 'Player 1 is black'),
         (chessnouns.NO_COLOR_SELECTED, 'No color selected')
     ]
     _color_code_field = get_enum_field(_color_code_choices)
+
 
     edit_form_extra_fields = { 'result': _result_field, 'color_code': _color_code_field }
     add_form_extra_fields = { 'result': _result_field, 'color_code': _color_code_field }

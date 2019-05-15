@@ -1,10 +1,8 @@
 from flask_appbuilder import Model
+import chessnouns
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from . import chessnouns
-from .chessnouns import player, tournament, draw, game, schedule
-
 Base = declarative_base()
 
 from . import appbuilder, db
@@ -38,7 +36,7 @@ class Player(db.Model):
     vip = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return "<Player {}>".format(self.name)
+        return str(self.name)
 
 
 class Game(db.Model):
@@ -58,8 +56,51 @@ class Game(db.Model):
     bye = db.Column(db.Boolean, default=False)
     round_id = db.Column(db.Integer, db.ForeignKey('round.id'))
 
+    def outcome(self):
+        if self.result == chessnouns.NO_RESULT:
+            return "No result"
+        elif self.result == chessnouns.WHITE_WINS:
+            return "White wins"
+        elif self.result == chessnouns.BLACK_WINS:
+            return "Black wins"
+        else:
+            return "Draw"
+
+    def first_player(self):
+        """
+        This method is here to add the color code to the player name
+        if we have it. It just returns the name if we do not, but the color
+        letter appended if we do have it
+        """
+        first_player = db.session.query(Player).get(self.player_one_id)
+        name_string = first_player.name
+
+        if self.color_code == chessnouns.NO_COLOR_SELECTED:
+            return name_string
+        elif self.color_code == chessnouns.PLAYER_ONE_IS_WHITE:
+            return name_string + " (White)"
+        else:
+            return name_string + " (Black)"
+
+    def second_player(self):
+        """
+        This method is here to add the color code to the player name
+        if we have it. It just returns the name if we do not, but the color
+        letter appended if we do have it
+        """
+        second_player = db.session.query(Player).get(self.player_two_id)
+        name_string = second_player.name
+
+        if self.color_code == chessnouns.NO_COLOR_SELECTED:
+            return name_string
+        elif self.color_code == chessnouns.PLAYER_ONE_IS_BLACK:
+            return name_string + " (White)"
+        else:
+            return name_string + " (Black)"
+
+
     def __repr__(self):
-        return "<Game: {} vs {} Result: {} >".format(self.player_one_id, self.player_two_id, self.result)
+        return "<Game: {} vs {} Result: {} >".format(self.first_player, self.second_player(), self.outcome())
 
 
 class Schedule(db.Model):
@@ -73,7 +114,7 @@ class Schedule(db.Model):
     rounds = relationship('Round', backref='schedule')
 
     def __repr__(self):
-        return "<Schedule {}>".format(self.title)
+        return "Schedule {}".format(self.title)
 
 
 class Round(db.Model):
@@ -87,7 +128,9 @@ class Round(db.Model):
     games = relationship("Game", backref='schedule')
 
     def __repr__(self):
-        return "<Round: {} For Schedule {}>".format(self.round_number, self.schedule_id)
+        schedule = db.session.query(Schedule).get(self.schedule_id)
+
+        return "Round: {} For Schedule {}".format(self.round_number, schedule.title)
 
 
 class Draw(db.Model):
