@@ -114,14 +114,17 @@ def get_rounds_for_leaderboard(schedule_identifier):
     #next_dict[1] = "Welsh Finging (W) vs.Mary Sue (B)"
     #next_dict[2] = "Tracy Corley (W) vs. Christian Greve(B)"
 
-    scheduled_rounds = db.session.query(models.Round).filter_by(schedule_id=schedule_identifier)
+    scheduled_rounds = db.session.query(models.Round).filter_by(schedule_id=schedule_identifier).all()
+
 
     last_completed_round = 0
 
     # Now we need to iterate
     for ind_round in scheduled_rounds:
         # Let's get all the games for this round
-        round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id)
+        print("Round ID was {}".format(ind_round.id))
+        round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id).all()
+
         # Let's get number of games
         number_round_games = db.session.query(models.Game).filter_by(round_id=ind_round.id).count()
 
