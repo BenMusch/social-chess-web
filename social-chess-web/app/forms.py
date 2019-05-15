@@ -27,6 +27,15 @@ def _get_choices(model_type, get_label=lambda obj: obj.name):
     return [ (obj.id, get_label(obj)) for obj in db.session.query(model_type).all() ]
 
 
+def get_enum_field(enum_choices, default=None):
+    return fields.SelectField(
+        choices=enum_choices,
+        coerce=int,
+        default=default,
+        validators=[validators.required()]
+    )
+
+
 class ScheduleForm(DynamicForm):
     """
     Custom form to create a schedule with a given selection of players
