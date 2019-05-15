@@ -14,6 +14,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
+        {% block meta_refresh %}{% endblock %}
     {% endblock %}
     {% block head_css %}
         <link href="{{url_for('appbuilder.static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
